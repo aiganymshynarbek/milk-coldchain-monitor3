@@ -4,12 +4,23 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
-  "hostRequirements": { "cpus": 2, "memory": "8gb" },
-  "forwardPorts": [8080, 8000],
-  "portsAttributes": {
-    "8080": { "label": "Jenkins", "onAutoForward": "notify" },
-    "8000": { "label": "coldchain API (staging)", "onAutoForward": "notify" }
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb"
   },
-  "containerEnv": { "REPO_URL": "https://github.com/${localEnv:GITHUB_REPOSITORY}.git" },
+  "forwardPorts": [
+    8080,
+    8000
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "Jenkins",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "coldchain API (staging)",
+      "onAutoForward": "notify"
+    }
+  },
   "postCreateCommand": "pip install --user -e '.[dev]'"
 }
