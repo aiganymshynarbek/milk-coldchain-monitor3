@@ -3,6 +3,17 @@
 The format follows [Keep a Changelog](https://keepachangelog.com/) and the
 project uses [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-10-30
+
+### Added
+- REST service (`coldchain serve`): `GET /health`, `GET /forecast`, `POST /forecast`.
+- Multi-stage `Dockerfile` (test and runtime images, non-root user, health check).
+- `Jenkinsfile`: unit tests in Docker on every commit, image build, smoke test,
+  optional push to Docker Hub, deployment to a staging container.
+- Jenkins in Docker (`docker-compose.jenkins.yml`, `jenkins/`) with the job
+  created by Configuration as Code.
+- Kubernetes manifests for Minikube (`k8s/`) and a GitHub Actions Docker workflow.
+
 ## [0.1.0] - 2026-10-10
 
 ### Added

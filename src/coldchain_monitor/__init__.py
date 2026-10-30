@@ -33,7 +33,7 @@ from coldchain_monitor.warning import (
     threshold_at_false_alarm_rate,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "FEATURE_NAMES",

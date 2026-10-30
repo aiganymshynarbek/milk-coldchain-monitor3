@@ -130,6 +130,29 @@ bounded forecasts after the stability correction, absence of look-ahead in
 the features, hand-worked examples for the labels and metrics, and the CSV
 and command-line interfaces.
 
+## Docker, Jenkins and Kubernetes
+
+The project ships as a container that runs a small REST service:
+
+```bash
+docker build --target runtime -t coldchain-monitor .
+docker run --rm -p 8000:8000 coldchain-monitor
+curl http://localhost:8000/health
+curl "http://localhost:8000/forecast?hours=3"
+curl -X POST http://localhost:8000/forecast -H "Content-Type: application/json" \
+     -d '{"temperature": [2.5, 3.0, 3.5, 3.5, 4.0], "hours": 1}'
+```
+
+| File | Role |
+|---|---|
+| [`Dockerfile`](Dockerfile) | `test` stage runs the unit tests, `runtime` stage runs the service as a non-root user |
+| [`Jenkinsfile`](Jenkinsfile) | Checkout → Unit tests → Build image → Smoke test → Push (optional) → Deploy to staging |
+| [`docker-compose.jenkins.yml`](docker-compose.jenkins.yml), [`jenkins/`](jenkins/) | Local Jenkins with plugins; the pipeline job is created by Configuration as Code |
+| [`k8s/`](k8s/) | Deployment and Service for Minikube |
+| [`.github/workflows/docker.yml`](.github/workflows/docker.yml) | The same pipeline on GitHub Actions |
+
+Step-by-step instructions: [docs/ASSIGNMENT5_GUIDE.md](docs/ASSIGNMENT5_GUIDE.md).
+
 ## Continuous integration and delivery
 
 * [`.github/workflows/ci.yml`](.github/workflows/ci.yml) - on every push and
