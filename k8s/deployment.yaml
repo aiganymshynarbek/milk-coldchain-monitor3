@@ -1,0 +1,31 @@
+# Optional CD target: Kubernetes (Minikube). See docs/ASSIGNMENT5_GUIDE.md, step 7.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coldchain-monitor
+  labels: {app: coldchain-monitor}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: coldchain-monitor}
+  template:
+    metadata:
+      labels: {app: coldchain-monitor}
+    spec:
+      containers:
+        - name: api
+          image: coldchain-monitor:latest
+          imagePullPolicy: IfNotPresent   # use the image loaded with `minikube image load`
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: 500m, memory: 512Mi}

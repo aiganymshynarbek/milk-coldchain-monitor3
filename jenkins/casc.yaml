@@ -1,0 +1,38 @@
+# Jenkins Configuration as Code: admin user and the pipeline job are created automatically.
+# ${VAR:-default} values come from the environment set in docker-compose.jenkins.yml.
+jenkins:
+  systemMessage: "coldchain-monitor CI/CD (Assignment 5)"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID:-admin}"
+          password: "${JENKINS_ADMIN_PASSWORD:-admin}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+jobs:
+  - script: |
+      pipelineJob('coldchain-monitor') {
+        description('CI/CD for the milk cold-chain monitoring project: unit tests, Docker image, staging deployment')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote { url('${REPO_URL:-https://github.com/YOUR_USERNAME/milk-coldchain-monitor.git}') }
+                branch('*/main')
+              }
+            }
+            scriptPath('Jenkinsfile')
+            lightweight(true)
+          }
+        }
+        properties {
+          pipelineTriggers {
+            triggers {
+              pollSCM { scmpoll_spec('H/2 * * * *') }
+            }
+          }
+        }
+      }
