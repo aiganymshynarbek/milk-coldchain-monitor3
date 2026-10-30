@@ -1,0 +1,57 @@
+name: Docker CI/CD
+
+# Same stages as the Jenkinsfile, on GitHub's runners: an alternative to Jenkins
+# (allowed by the assignment) and a second, always-available proof that the image builds.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: coldchain-monitor
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unit tests inside the test image
+        run: |
+          docker build --target test -t $IMAGE-test .
+          docker run --name tests $IMAGE-test
+          docker cp tests:/app/reports ./reports
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: reports/
+
+      - name: Build runtime image
+        run: docker build --target runtime -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+
+      - name: Smoke test
+        run: |
+          docker run --rm $IMAGE:latest coldchain --version
+          docker run --rm $IMAGE:latest coldchain forecast data/example_log.csv --hours 3
+
+      - name: Deploy to a test container and call the API
+        run: |
+          docker run -d --name staging -p 8000:8000 $IMAGE:latest
+          for i in $(seq 1 10); do curl -fs localhost:8000/health && break; sleep 2; done
+          curl -fs "localhost:8000/forecast?hours=3"
+
+      - name: Push to Docker Hub
+        if: github.event_name == 'push' && vars.DOCKERHUB_USERNAME != ''
+        env:
+          DH_USER: ${{ vars.DOCKERHUB_USERNAME }}
+          DH_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          echo "$DH_TOKEN" | docker login -u "$DH_USER" --password-stdin
+          docker tag $IMAGE:latest $DH_USER/$IMAGE:latest
+          docker push $DH_USER/$IMAGE:latest
