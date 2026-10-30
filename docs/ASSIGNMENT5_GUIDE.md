@@ -3,6 +3,30 @@
 Everything below runs on your own computer. Total time: about 30–40 minutes,
 most of it waiting for downloads the first time.
 
+## Option A – nothing installed: GitHub Codespaces (recommended for a small laptop)
+
+A Codespace is a Linux computer in GitHub's cloud that opens in the browser.
+Docker is already inside it (see `.devcontainer/devcontainer.json`). Personal
+GitHub accounts get 120 core-hours per month free (a 2-core Codespace uses
+2 per hour, so about 60 hours), and no payment card is needed.
+
+1. Put the project on GitHub (step 1 below) – this can also be done in the
+   browser with "Add file → Upload files".
+2. On the repository page: **Code → Codespaces → Create codespace on main**.
+   Wait 2–3 minutes until VS Code opens in the browser.
+3. In its terminal (bottom panel) run:
+   ```bash
+   export REPO_URL=https://github.com/$GITHUB_REPOSITORY.git
+   docker compose -f docker-compose.jenkins.yml up -d --build
+   ```
+4. Open the **Ports** tab, find port **8080 (Jenkins)** and click the globe
+   icon. Log in with **admin / admin** and continue with step 4 below.
+   The deployed API is port **8000** in the same tab.
+5. When finished, stop the Codespace (Codespaces list → … → Stop) so it does
+   not use your free hours.
+
+## Option B – on your own computer
+
 ## 0. What you need
 
 | Tool | Why | Check |
